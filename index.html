@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Produktbillede Generator</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    input[type="file"] {
+      margin: 1rem auto;
+      display: block;
+    }
+
+    #previewContainer {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .thumb {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    }
+
+    canvas {
+      background-color: #1e1e1e;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      background-color: #1db954;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1aa34a;
+    }
+  </style>
+</head>
+<body>
+  <h1>🖼️ Lav dit produktbillede</h1>
+  <input type="file" id="fileInput" multiple accept="image/*" />
+  <div id="previewContainer"></div>
+  <canvas id="outputCanvas" width="800" height="500"></canvas>
+  <br />
+  <button id="downloadBtn">Download billede</button>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const canvas = document.getElementById('outputCanvas');
+    const ctx = canvas.getContext('2d');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let images = [];
+
+    fileInput.addEventListener('change', handleFiles);
+
+    function handleFiles(event) {
+      images = [];
+      previewContainer.innerHTML = "";
+      const files = Array.from(event.target.files).slice(0, 5);
+
+      if (files.length === 0) return;
+
+      let loadedCount = 0;
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            images.push(img);
+            const thumb = document.createElement('img');
+            thumb.src = img.src;
+            thumb.className = "thumb";
+            previewContainer.appendChild(thumb);
+
+            loadedCount++;
+            if (loadedCount === files.length) {
+              drawFinalImage();
+            }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function drawFinalImage() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const positions = [
+        { x: 100, y: 100 },
+        { x: 300, y: 120 },
+        { x: 500, y: 140 },
+        { x: 200, y: 250 },
+        { x: 400, y: 270 }
+      ];
+
+      images.forEach((img, index) => {
+        const pos = positions[index];
+        const width = 150;
+        const height = 150;
+
+        // Skygge
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetX = 10;
+        ctx.shadowOffsetY = 10;
+        ctx.drawImage(img, pos.x, pos.y, width, height);
+        ctx.restore();
+      });
+    }
+
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'produktbillede.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  </script>
+</body>
+</html>

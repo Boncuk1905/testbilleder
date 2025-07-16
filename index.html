@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="da">
 <head>
   <meta charset="UTF-8">
   <title>Baggrundsfjerner</title>
@@ -8,14 +8,11 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Fjern baggrund fra billede (gratis)</h1>
-  <input type="file" accept="image/*" id="upload"><br><br>
+  <h1>Fjern baggrund fra billede</h1>
+  <input type="file" accept="image/*" id="upload" multiple><br><br>
   <label for="bgColor">Baggrundsfarve:</label>
   <input type="color" id="bgColor" value="#ffffff"><br><br>
-  <div class="canvas-wrapper">
-    <canvas id="canvas"></canvas>
-    <canvas id="reflection"></canvas>
-  </div>
+  <div id="gallery"></div>
   <script src="script.js"></script>
 </body>
 </html>

@@ -1,29 +1,37 @@
 const uploadInput = document.getElementById('upload');
-const canvas = document.getElementById('canvas');
-const reflectionCanvas = document.getElementById('reflection');
 const bgColorInput = document.getElementById('bgColor');
-const ctx = canvas.getContext('2d');
-const reflectionCtx = reflectionCanvas.getContext('2d');
+const gallery = document.getElementById('gallery');
 
 uploadInput.addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const files = Array.from(e.target.files);
+  if (files.length === 0) return;
 
-  const img = new Image();
-  img.src = URL.createObjectURL(file);
+  const net = await bodyPix.load();
 
-  img.onload = async () => {
-    canvas.width = img.width;
-    canvas.height = img.height;
-    reflectionCanvas.width = img.width;
-    reflectionCanvas.height = img.height;
+  for (const file of files) {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    await img.decode();
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'canvas-container';
+
+    const canvas = document.createElement('canvas');
+    const reflectionCanvas = document.createElement('canvas');
+    canvas.className = 'main-canvas';
+    reflectionCanvas.className = 'reflection-canvas';
+
+    const ctx = canvas.getContext('2d');
+    const reflectionCtx = reflectionCanvas.getContext('2d');
+
+    canvas.width = reflectionCanvas.width = img.width;
+    canvas.height = reflectionCanvas.height = img.height;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = bgColorInput.value;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0);
 
-    const net = await bodyPix.load();
     const segmentation = await net.segmentPerson(canvas);
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -50,5 +58,9 @@ uploadInput.addEventListener('change', async (e) => {
     reflectionCtx.fillStyle = bgColorInput.value;
     reflectionCtx.fillRect(0, 0, reflectionCanvas.width, reflectionCanvas.height);
     reflectionCtx.putImageData(newImageData, 0, 0);
-  };
+
+    wrapper.appendChild(canvas);
+    wrapper.appendChild(reflectionCanvas);
+    gallery.appendChild(wrapper);
+  }
 });

@@ -1,24 +1,48 @@
 body {
-  font-family: sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212;
+  color: #ffffff;
   text-align: center;
-  padding: 20px;
-  background-color: #f4f4f4;
+  padding: 40px;
+}
+
+h1 {
+  color: #ffffff;
+}
+
+input[type="file"], input[type="color"] {
+  margin: 10px 0;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  background-color: #1f1f1f;
+  color: #ffffff;
+}
+
+input[type="color"] {
+  padding: 0;
+  width: 50px;
+  height: 30px;
+  vertical-align: middle;
 }
 
 .canvas-wrapper {
   position: relative;
   display: inline-block;
+  margin-top: 30px;
 }
 
 canvas {
   display: block;
   margin: 0 auto;
   max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
 }
 
 #reflection {
   transform: scaleY(-1);
-  opacity: 0.3;
+  opacity: 0.25;
   position: absolute;
   top: 100%;
   left: 0;

@@ -40,8 +40,7 @@
     }
 
     canvas {
-      background-color: #1e1e1e;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      background-color: #fff;
       border-radius: 12px;
       margin-bottom: 1rem;
     }
@@ -62,10 +61,10 @@
   </style>
 </head>
 <body>
-  <h1>🖼️ Lav dit produktbillede</h1>
+  <h1>📸 Produktbillede Generator</h1>
   <input type="file" id="fileInput" multiple accept="image/*" />
   <div id="previewContainer"></div>
-  <canvas id="outputCanvas" width="800" height="500"></canvas>
+  <canvas id="outputCanvas" width="900" height="600"></canvas>
   <br />
   <button id="downloadBtn">Download billede</button>
 
@@ -114,26 +113,31 @@
     function drawFinalImage() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const positions = [
-        { x: 100, y: 100 },
-        { x: 300, y: 120 },
-        { x: 500, y: 140 },
-        { x: 200, y: 250 },
-        { x: 400, y: 270 }
-      ];
+      const baseY = 400;
+      const baseX = 150;
+      const spacing = 140;
+      const maxWidth = 120;
+      const maxHeight = 160;
 
       images.forEach((img, index) => {
-        const pos = positions[index];
-        const width = 150;
-        const height = 150;
+        const x = baseX + index * spacing;
+        const isStanding = index % 2 === 0;
+        const y = isStanding ? baseY - 120 : baseY;
+        const angle = isStanding ? -0.3 : 0; // radians
 
-        // Skygge
+        // Tegn skygge
         ctx.save();
-        ctx.shadowColor = 'rgba(0,0,0,0.5)';
-        ctx.shadowBlur = 20;
-        ctx.shadowOffsetX = 10;
-        ctx.shadowOffsetY = 10;
-        ctx.drawImage(img, pos.x, pos.y, width, height);
+        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+        ctx.beginPath();
+        ctx.ellipse(x + maxWidth / 2, baseY + 10, 40, 12, 0, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+
+        // Tegn billede
+        ctx.save();
+        ctx.translate(x + maxWidth / 2, y + maxHeight / 2);
+        ctx.rotate(angle);
+        ctx.drawImage(img, -maxWidth / 2, -maxHeight / 2, maxWidth, maxHeight);
         ctx.restore();
       });
     }

@@ -2,149 +2,133 @@
 <html lang="da">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Produktbillede Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      background-color: #121212;
-      color: #e0e0e0;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 2rem;
+      background: #121212;
+      color: white;
+      font-family: sans-serif;
       text-align: center;
+      padding: 2rem;
     }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
+    canvas {
+      background: white;
+      border-radius: 12px;
+      margin-top: 1rem;
     }
-
-    input[type="file"] {
-      margin: 1rem auto;
-      display: block;
-    }
-
-    #previewContainer {
+    .thumbs {
+      margin-top: 1rem;
       display: flex;
-      justify-content: center;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
-      margin-bottom: 2rem;
     }
-
-    .thumb {
+    .thumbs img {
       width: 80px;
       height: 80px;
       object-fit: cover;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(255,255,255,0.2);
     }
-
-    canvas {
-      background-color: #fff;
-      border-radius: 12px;
-      margin-bottom: 1rem;
+    input[type="file"] {
+      margin: 1rem 0;
     }
-
     button {
-      padding: 0.5rem 1rem;
+      margin-top: 1rem;
+      padding: 10px 20px;
+      background: #1db954;
       border: none;
-      background-color: #1db954;
-      color: white;
-      font-size: 1rem;
       border-radius: 8px;
+      color: white;
       cursor: pointer;
     }
-
     button:hover {
-      background-color: #1aa34a;
+      background: #17a34a;
     }
   </style>
 </head>
 <body>
-  <h1>📸 Produktbillede Generator</h1>
+  <h1>Produktbillede Generator</h1>
   <input type="file" id="fileInput" multiple accept="image/*" />
-  <div id="previewContainer"></div>
-  <canvas id="outputCanvas" width="900" height="600"></canvas>
-  <br />
+  <div class="thumbs" id="previewContainer"></div>
+  <canvas id="outputCanvas" width="1000" height="600"></canvas><br />
   <button id="downloadBtn">Download billede</button>
 
   <script>
-    const fileInput = document.getElementById('fileInput');
-    const previewContainer = document.getElementById('previewContainer');
+    const input = document.getElementById('fileInput');
+    const preview = document.getElementById('previewContainer');
     const canvas = document.getElementById('outputCanvas');
     const ctx = canvas.getContext('2d');
     const downloadBtn = document.getElementById('downloadBtn');
 
     let images = [];
 
-    fileInput.addEventListener('change', handleFiles);
-
-    function handleFiles(event) {
+    input.addEventListener('change', e => {
       images = [];
-      previewContainer.innerHTML = "";
-      const files = Array.from(event.target.files).slice(0, 5);
+      preview.innerHTML = '';
+      const files = Array.from(e.target.files).slice(0, 8);
 
-      if (files.length === 0) return;
-
-      let loadedCount = 0;
-
-      files.forEach(file => {
+      let loaded = 0;
+      files.forEach((file, i) => {
         const reader = new FileReader();
-        reader.onload = e => {
+        reader.onload = ev => {
           const img = new Image();
           img.onload = () => {
             images.push(img);
             const thumb = document.createElement('img');
             thumb.src = img.src;
-            thumb.className = "thumb";
-            previewContainer.appendChild(thumb);
+            preview.appendChild(thumb);
 
-            loadedCount++;
-            if (loadedCount === files.length) {
-              drawFinalImage();
+            loaded++;
+            if (loaded === files.length) {
+              drawImages();
             }
           };
-          img.src = e.target.result;
+          img.src = ev.target.result;
         };
         reader.readAsDataURL(file);
       });
-    }
+    });
 
-    function drawFinalImage() {
+    function drawImages() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const positions = [
+        { x: 100, y: 320, angle: -0.3, scale: 1 },
+        { x: 220, y: 360, angle: 0, scale: 1 },
+        { x: 340, y: 300, angle: -0.25, scale: 1 },
+        { x: 460, y: 360, angle: 0.1, scale: 1 },
+        { x: 580, y: 310, angle: -0.2, scale: 1 },
+        { x: 700, y: 360, angle: 0, scale: 1 },
+        { x: 820, y: 300, angle: -0.25, scale: 1 },
+        { x: 940, y: 360, angle: 0.15, scale: 1 }
+      ];
 
-      const baseY = 400;
-      const baseX = 150;
-      const spacing = 140;
-      const maxWidth = 120;
-      const maxHeight = 160;
+      images.forEach((img, i) => {
+        const { x, y, angle, scale } = positions[i] || { x: 100 + i*120, y: 350, angle: 0, scale: 1 };
+        const w = 100 * scale;
+        const h = 140 * scale;
 
-      images.forEach((img, index) => {
-        const x = baseX + index * spacing;
-        const isStanding = index % 2 === 0;
-        const y = isStanding ? baseY - 120 : baseY;
-        const angle = isStanding ? -0.3 : 0; // radians
-
-        // Tegn skygge
+        // Shadow
         ctx.save();
-        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
         ctx.beginPath();
-        ctx.ellipse(x + maxWidth / 2, baseY + 10, 40, 12, 0, 0, 2 * Math.PI);
+        ctx.ellipse(x + w/2, y + h + 10, 40, 12, 0, 0, 2 * Math.PI);
         ctx.fill();
         ctx.restore();
 
-        // Tegn billede
+        // Image with rotation
         ctx.save();
-        ctx.translate(x + maxWidth / 2, y + maxHeight / 2);
+        ctx.translate(x + w/2, y + h/2);
         ctx.rotate(angle);
-        ctx.drawImage(img, -maxWidth / 2, -maxHeight / 2, maxWidth, maxHeight);
+        ctx.drawImage(img, -w/2, -h/2, w, h);
         ctx.restore();
       });
     }
 
     downloadBtn.addEventListener('click', () => {
       const link = document.createElement('a');
-      link.download = 'produktbillede.png';
+      link.download = 'kombineret-produktbillede.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
     });
